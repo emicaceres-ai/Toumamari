@@ -3,6 +3,7 @@ import { Clock, MapPin, ArrowRight, Tag } from "lucide-react";
 import { Tour } from "../data";
 
 interface TourCardProps {
+  key?: string | number;
   tour: Tour;
   onClick: () => void;
   fadeUp: any; // Variante de motion

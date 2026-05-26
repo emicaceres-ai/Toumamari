@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { CalendarDays, MapPin, Clock, ArrowRight, Compass, Mail, Phone, X, Check, XCircle, Star, MessageCircle } from "lucide-react";
+import { CalendarDays, MapPin, Clock, ArrowRight, Compass, Mail, Phone, X, Check, XCircle, Star, MessageCircle, ShoppingCart } from "lucide-react";
 import { useLanguage } from "../i18n";
 import { useCart } from "../CartContext";
 import { CONTACT_INFO, getAbout, getReviews, getTours, Tour } from "../data";
@@ -180,6 +180,46 @@ export function Home() {
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
           variants={staggerContainer}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16"
+        >
+          {/* Promotional Banners */}
+          <div 
+            onClick={() => {
+              const packTour = TOURS.find(t => t.id === "6"); // Super Full Day Privado
+              if(packTour) setSelectedTour(packTour);
+            }}
+            className="md:col-span-2 relative h-48 md:h-64 rounded-3xl overflow-hidden cursor-pointer group shadow-xl border border-neutral-200"
+          >
+            <img src="https://images.unsplash.com/photo-1596706917953-ce20c1511ae6?q=80&w=2670&auto=format&fit=crop" alt="Promo Pack" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center p-8">
+               <div>
+                  <span className="bg-yellow-600 text-white text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full mb-3 inline-block">Promoción Especial</span>
+                  <h3 className="text-3xl md:text-4xl font-black text-white mb-2">Super Full Day Privado</h3>
+                  <p className="text-neutral-300 font-medium max-w-sm">Tu día perfecto, a tu ritmo. Descubre Rapa Nui con un itinerario exclusivo.</p>
+                  <p className="mt-4 font-bold text-[#FFD700] hover:text-white transition-colors flex items-center gap-2">Ver Detalles <ArrowRight className="w-4 h-4" /></p>
+               </div>
+            </div>
+          </div>
+          <div 
+             onClick={() => {
+              const sunriseTour = TOURS.find(t => t.id === "3"); // Amanecer
+              if(sunriseTour) setSelectedTour(sunriseTour);
+            }}
+            className="relative h-48 md:h-64 rounded-3xl overflow-hidden cursor-pointer group shadow-xl border border-neutral-200"
+          >
+            <img src="/tongariki.jpg" alt="Amanecer Promo" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-8">
+               <h3 className="text-2xl font-black text-white mb-1">Amanecer Mágico</h3>
+               <p className="text-neutral-300 text-sm font-medium">Ahu Tongariki</p>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={staggerContainer}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           <AnimatePresence>
@@ -334,11 +374,24 @@ export function Home() {
 
           {/* Formulario */}
           <motion.div variants={fadeUp} className="bg-white p-10 md:p-14 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-neutral-100">
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <form 
+              className="space-y-6" 
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const name = formData.get('name');
+                const email = formData.get('email');
+                const subject = formData.get('subject');
+                const message = formData.get('message');
+                window.location.href = `mailto:${CONTACT_INFO.email}?subject=${subject}&body=Nombre: ${name}%0D%0ACorreo: ${email}%0D%0AMensaje: ${message}`;
+              }}
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-2">{t.formName}</label>
                   <input 
+                    name="name"
+                    required
                     type="text" 
                     placeholder={t.formNameP}
                     className="w-full bg-neutral-50 border border-neutral-200 focus:bg-white focus:border-yellow-500 focus:ring-4 focus:ring-yellow-500/10 rounded-2xl px-5 py-4 outline-none transition-all"
@@ -347,6 +400,8 @@ export function Home() {
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-2">{t.formEmail}</label>
                   <input 
+                    name="email"
+                    required
                     type="email" 
                     placeholder="correo@ejemplo.com"
                     className="w-full bg-neutral-50 border border-neutral-200 focus:bg-white focus:border-yellow-500 focus:ring-4 focus:ring-yellow-500/10 rounded-2xl px-5 py-4 outline-none transition-all"
@@ -356,6 +411,8 @@ export function Home() {
               <div className="space-y-2">
                 <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-2">{t.formSubj}</label>
                 <input 
+                  name="subject"
+                  required
                   type="text" 
                   placeholder={t.formSubjP}
                   className="w-full bg-neutral-50 border border-neutral-200 focus:bg-white focus:border-yellow-500 focus:ring-4 focus:ring-yellow-500/10 rounded-2xl px-5 py-4 outline-none transition-all"
@@ -364,13 +421,15 @@ export function Home() {
               <div className="space-y-2">
                 <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-2">{t.formMsg}</label>
                 <textarea 
+                  name="message"
+                  required
                   rows={4}
                   placeholder={t.formMsgP}
                   className="w-full bg-neutral-50 border border-neutral-200 focus:bg-white focus:border-yellow-500 focus:ring-4 focus:ring-yellow-500/10 rounded-2xl px-5 py-4 outline-none transition-all resize-none"
                 ></textarea>
               </div>
               
-              <button className="w-full bg-black text-white py-5 rounded-2xl font-bold uppercase tracking-wider hover:bg-[#FFD700] hover:text-black hover:shadow-xl hover:shadow-yellow-500/20 transition-all duration-300">
+              <button type="submit" className="w-full bg-black text-white py-5 rounded-2xl font-bold uppercase tracking-wider hover:bg-[#FFD700] hover:text-black hover:shadow-xl hover:shadow-yellow-500/20 transition-all duration-300">
                 {t.formBtn}
               </button>
             </form>
